@@ -1,21 +1,21 @@
 # Configuration
-$esURL = "https://<redacted>.es.ece-test-bm.<redacted>.net:<redacted>"
+$esURL = "https://<your_elasticsearch_url_here>:<your_port_here>"
 
 # Log indices
-$logsWindowsIndex = "ste-logs-randbank-windows"
-$logsMainframeIndex = "ste-logs-randbank-mainframe"
-$logsApplicationIndex = "ste-logs-randbank-application"
-$logsPowershellIndex = "ste-logs-randbank-powershell"
+$logsWindowsIndex = "<your_windows_log_index_here>"
+$logsMainframeIndex = "<your_mainframe_log_index_here>"
+$logsApplicationIndex = "<your_application_log_index_here>"
+$logsPowershellIndex = "<your_powershell_log_index_here>"
 # Performance metrics indices
-$perfAppTransIndex = "ste-metrics-randbank-application-transactions"
-$perfWindowsIndex = "ste-metrics-randbank-windows"
-$perfMainframeIndex = "ste-metrics-randbank-mainframe"
-$SleepInterval = 10
-$PerfSampleInterval = 60
-$LogsSampleInterval = 60
+$perfAppTransIndex = "<your_application_transactions_metric_index_here>"
+$perfWindowsIndex = "<your_windows_metric_index_here>"
+$perfMainframeIndex = "<your_mainframe_metric_index_here>"
+$SleepInterval = 10 # The inbetween sleep timer for batches in seconds
+$PerfSampleInterval = 60 # How quickly it should generate another batch of performance metrics in seconds
+$LogsSampleInterval = 60 # How quickly it should generate another batch of logs in seconds
 # Credentials (Basic Auth)
-$username = "<redacted>"
-$password = "<redacted>"
+$username = "<your_username_here>"
+$password = "<your_password_here>"
 $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($username):$($password)"))
 # Function to send data to Elasticsearch (Bulk API)
 function Send-To-Elasticsearch {
@@ -746,4 +746,5 @@ try {
 catch {
     Write-Host "An error occurred: $_"
     exit 1
+
 }
