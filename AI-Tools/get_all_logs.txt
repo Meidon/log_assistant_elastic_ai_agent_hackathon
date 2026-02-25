@@ -1,0 +1,22 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+| LIMIT 500
+
+ESQL Parameters
+-------------------------------
+null
+-------------------------------
+Tool ID
+
+get_all_logs
+
+Description
+
+Gets the latest 500 logs from all ste-log indexes.
+
+Labels
+
+logs; observability;
