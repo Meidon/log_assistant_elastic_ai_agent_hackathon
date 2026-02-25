@@ -1,0 +1,30 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+  | SAMPLE ?sampleSize
+  | STATS Count=COUNT(*)/?sampleSize BY Pattern=CATEGORIZE(log.message)
+  | SORT Count DESC
+  | LIMIT 100
+
+ESQL Parameters
+-------------------------------
+sampleSize
+The sample size of the pattern analysis default to .001
+
+double
+-------------------------------
+
+
+Tool ID
+
+run_log_pattern_analysis
+
+Description
+
+Quick pattern analysis on all ste-logs indexes
+
+Labels
+
+observability; pattern_analysis;

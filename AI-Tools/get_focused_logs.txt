@@ -1,0 +1,39 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+| EVAL firstEmbedMessage = CONCAT("*", "", ?message)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","*")
+| WHERE MATCH_PHRASE(log.message, lastEmbedMessage) AND log.level LIKE ?level
+| LIMIT 10
+
+ESQL Parameters
+-------------------------------
+message
+
+Looks for log message context
+
+text
+-------------------------------
+level
+
+Get the criticality level of the log, DEBUG, WARNING, WARN, INFO, TRACE, SEVERE, ERROR, CRITICAL,
+
+text
+-------------------------------
+
+
+
+
+Tool ID
+
+get_focused_logs
+
+Description
+
+Gets logs with AI filtering applied based on specifics from user prompt 
+
+Labels
+
+logs; observability;

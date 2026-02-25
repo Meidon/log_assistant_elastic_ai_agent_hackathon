@@ -1,0 +1,59 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+  | EVAL firstEmbedMessage = CONCAT("", "", ?hostName)
+  | EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+  | EVAL startTime = ?starttime
+  | EVAL endTime = ?endtime
+  | WHERE MATCH_PHRASE(host.name.keyword, lastEmbedMessage) AND @timestamp <=?endtime and @timestamp >?starttime
+  | SAMPLE ?sampleSize
+  | STATS Count=COUNT(*)/?sampleSize BY Pattern=CATEGORIZE(log.message)
+  | SORT Count DESC
+  | LIMIT 100
+
+ESQL Parameters
+-------------------------------
+hostName
+by host
+
+text
+-------------------------------
+
+starttime
+start time
+
+date
+-------------------------------
+
+endtime
+end time
+
+date
+-------------------------------
+
+sampleSize
+size to sample
+
+double
+-------------------------------
+
+
+Tool ID
+
+run_log_pattern_analysis_filtered_by_hostname_and_time
+
+Description
+
+Run a quick pattern analysis by host and time range 
+
+Time must be provided in ISO 8601 format
+
+Example
+2026-02-19T08:00:00.000Z   *Start 
+2026-02-24T08:00:00.000Z  *End
+
+Labels
+
+observability; pattern_analysis;

@@ -1,0 +1,53 @@
+Type ESQL
+
+Query
+
+FROM ste-metrics-*
+| EVAL firstEmbedMessage = CONCAT("", "", ?counterName)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+| WHERE MATCH_PHRASE(CounterName, lastEmbedMessage) AND @timestamp <=?endtime and @timestamp >?starttime
+| EVAL time_bucket = DATE_TRUNC(?timebucketspan, @timestamp)
+| STATS deviation = MEDIAN_ABSOLUTE_DEVIATION(Value) by host.name
+| EVAL deviationDegree = CASE(deviation >= 20, "Low", deviation >= 30, "Medium", deviation >= 50, "High", deviation < 20, "Normal")
+| SORT deviationDegree DESC
+
+ESQL Parameters
+-------------------------------
+counterName
+The countername to filter by
+
+text
+-------------------------------
+
+endtime
+end time
+
+date
+-------------------------------
+
+starttime
+start time
+
+date
+-------------------------------
+
+timebucketspan
+the period of the time_bucket default 1 hour
+
+text
+-------------------------------
+
+
+Tool ID
+
+run_metric_anomaly_detection_by_countername_and_time
+
+Description
+
+Run a quick anomaly detection on ste-metrics-* indexes filtered down by countername and time range 
+
+uses a prefixed deviation in this sample a more flexible approach in the future would be ideal.
+
+Labels
+
+observability; anomaly_detection;

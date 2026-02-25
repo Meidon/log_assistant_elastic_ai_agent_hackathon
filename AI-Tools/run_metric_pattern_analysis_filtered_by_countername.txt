@@ -1,0 +1,40 @@
+Type ESQL
+
+Query
+
+FROM ste-metrics-*
+| EVAL firstEmbedMessage = CONCAT("", "", ?counterName)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+| WHERE MATCH_PHRASE(CounterName, lastEmbedMessage)
+| STATS count = COUNT(*), avg_value = AVG(Value), sum_value = SUM(Value)
+    BY
+    time_bucket = BUCKET(@timestamp, ?timebucketperiod), CounterName, InstanceName
+| SORT time_bucket
+| LIMIT 100
+
+ESQL Parameters
+-------------------------------
+counterName
+the countername to check
+
+text
+-------------------------------
+
+timebucketperiod
+timebucket period default is 1 hour
+
+text
+-------------------------------
+
+
+Tool ID
+
+run_metric_pattern_analysis_filtered_by_countername
+
+Description
+
+run a quick metric pattern analysis on all ste-metrics indexes with filter for one countername
+
+Labels
+
+observability; pattern_analysis;

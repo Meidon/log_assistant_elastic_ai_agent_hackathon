@@ -1,0 +1,68 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+| EVAL firstEmbedMessage = CONCAT("", "", ?hostname)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+| EVAL secondFirstEmbedMessage = CONCAT("","",?logType)
+| EVAL secondLastEmbedMessage = CONCAT(secondFirstEmbedMessage, "", "")
+| WHERE MATCH_PHRASE(host.name.keyword, lastEmbedMessage) AND @timestamp <=?endtime and @timestamp >?starttime AND MATCH_PHRASE(metric.name, secondLastEmbedMessage)
+| stats executions = count(*), unique_commands = COUNT_DISTINCT(log.cmdlet), unique_message = COUNT_DISTINCT(log.message)
+| WHERE executions > 1
+| EVAL usage_pattern = CASE(
+    executions > ?highUsage, "High Usage",
+    executions > ?moderateUsage, "Moderate Usage",
+    "Low Usage"
+  )
+
+ESQL Parameters
+-------------------------------
+hostname
+the hostname
+
+text
+-------------------------------
+
+logType
+the logtype to filter by default PowerShell Log
+
+text
+-------------------------------
+
+endtime
+end time
+
+date
+-------------------------------
+
+starttime
+start time
+
+date
+-------------------------------
+
+highUsage
+high usage of executions default 50
+
+integer
+-------------------------------
+
+moderateUsage
+moderate usage of executions default 30
+
+integer
+-------------------------------
+
+
+Tool ID
+
+run_log_anomaly_detection_by_hostname_logytype_and_time
+
+Description
+
+Run anomaly detection on ste-logs-* with logtype and hostname filtering within a specific time range. Optional define your high and moderate usage as well.
+
+Labels
+
+observability; anomaly_detection;

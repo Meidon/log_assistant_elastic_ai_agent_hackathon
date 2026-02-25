@@ -1,0 +1,39 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+  | EVAL firstEmbedMessage = CONCAT("", "", ?hostName)
+  | EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+  | WHERE MATCH_PHRASE(host.name.keyword, lastEmbedMessage)
+  | SAMPLE ?sampleSize
+  | STATS Count=COUNT(*)/?sampleSize BY Pattern=CATEGORIZE(log.message)
+  | SORT Count DESC
+  | LIMIT 100
+
+ESQL Parameters
+-------------------------------
+hostName
+Select host
+
+text
+-------------------------------
+
+sampleSize
+the size to sample
+
+double
+-------------------------------
+
+
+Tool ID
+
+run_log_pattern_analysis_filtered_by_hostname
+
+Description
+
+Run a quick pattern analysis on ste-logs-* indexes by hostname 
+
+Labels
+
+observability; pattern_analysis;

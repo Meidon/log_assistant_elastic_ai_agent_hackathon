@@ -1,0 +1,104 @@
+Type ESQL
+
+Query
+
+FROM ste-metrics-randbank-windows
+
+| EVAL firstEmbedMessage = CONCAT("", "", ?hostname)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+| WHERE MATCH_PHRASE(host.name, lastEmbedMessage) AND @timestamp <= ?endtime and @timestamp > ?starttime
+| rename host.name AS host.name.keyword
+| LOOKUP JOIN ste-logs-randbank-windows ON host.name.keyword 
+| WHERE log.level == ?logLevel and metric.name == ?metricName and Value > ?valueThreshold and log.message == ?logMessage
+| STATS avg_value = avg(Value), deviation = MEDIAN_ABSOLUTE_DEVIATION(Value), unique_logs = COUNT_DISTINCT(log.message)
+    BY
+    time_bucket = BUCKET(@timestamp, ?timebucketspan), CounterName, InstanceName
+| SORT time_bucket
+| where deviation > ?deviationThreshold
+| EVAL usage_pattern = CASE(
+    deviation > ?highUsage, "High Usage",
+    deviation > ?moderateUsage, "Moderate Usage",
+    "Low Usage"
+  )
+| LIMIT 100
+
+ESQL Parameters
+-------------------------------
+hostname
+by host
+
+text
+-------------------------------
+
+endtime
+end time
+
+date
+-------------------------------
+
+starttime
+start time
+
+date
+-------------------------------
+
+logLevel
+the priority level of the log default CRITICAL
+
+text
+-------------------------------
+
+metricName
+the name of the metric to compare with 
+
+text
+-------------------------------
+
+valueThreshold
+the cutoff threshold default is 50
+
+integer
+-------------------------------
+
+logMessage
+full message of the log you are filtering for
+
+text
+-------------------------------
+
+timebucketspan
+the time span of your bucket default 1 hour
+
+text
+-------------------------------
+
+deviationThreshold
+lower value cutoff for your deviation default is 10
+
+integer
+-------------------------------
+
+highUsage
+What you perceive as high usage default is 50
+
+integer
+-------------------------------
+
+moderateUsage
+What you perceive as moderate usage default is 20
+
+integer
+-------------------------------
+
+
+Tool ID
+
+run_metric_and_log_correlation_analysis_windows
+
+Description
+
+This is the metric and log correclation analysis for windows metric and log indices. 
+
+Labels
+
+observability; anomaly_detection; logs; metrics;

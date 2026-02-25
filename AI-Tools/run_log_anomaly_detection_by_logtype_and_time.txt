@@ -1,0 +1,59 @@
+Type ESQL
+
+Query
+
+FROM ste-logs-*
+| EVAL firstEmbedMessage = CONCAT("", "", ?logType)
+| EVAL lastEmbedMessage = CONCAT(firstEmbedMessage, "","")
+|WHERE  @timestamp <=?endtime and @timestamp >?starttime AND metric.name == lastEmbedMessage
+| stats executions = count(*), unique_commands = COUNT_DISTINCT(log.cmdlet), unique_message = COUNT_DISTINCT(log.message) by host.name.keyword
+| WHERE executions > 1
+| EVAL usage_pattern = CASE(
+    executions > ?highUsage, "High Usage",
+    executions > ?moderateUsage, "Moderate Usage",
+    "Low Usage"
+  )
+
+ESQL Parameters
+-------------------------------
+logType
+the type of logs to look for
+
+text
+-------------------------------
+
+endtime
+end time
+
+date
+-------------------------------
+
+starttime
+start time
+
+date
+-------------------------------
+
+highUsage
+high usage of executions
+
+integer
+-------------------------------
+
+moderateUsage
+moderate usage of executions 
+
+integer
+-------------------------------
+
+
+Tool ID
+
+run_log_anomaly_detection_by_logtype_and_time
+
+Description
+
+Run a quick anomaly_detection by the log type (PowerShell Logs or Mainframe Logs) within a time range also define your high and moderate usage amount for your query. 
+Labels
+
+observability; anomaly_detection;

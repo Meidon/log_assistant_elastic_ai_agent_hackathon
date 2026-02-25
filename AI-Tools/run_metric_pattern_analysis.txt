@@ -1,0 +1,31 @@
+Type ESQL
+
+Query
+
+FROM ste-metrics-*
+| STATS count = COUNT(*), avg_value = AVG(Value), sum_value = SUM(Value)
+    BY
+    time_bucket = BUCKET(@timestamp, ?timebucketperiod), CounterName, InstanceName
+| SORT time_bucket
+| LIMIT 100
+
+ESQL Parameters
+-------------------------------
+timebucketperiod
+The time_bucket period default is 1 hour
+
+text
+-------------------------------
+
+
+Tool ID
+
+run_metric_pattern_analysis
+
+Description
+
+Runs a quick pattern analysis on all ste-metric indexes
+
+Labels
+
+observability; pattern_analysis;
