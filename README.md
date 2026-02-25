@@ -45,7 +45,7 @@ Log Assistant is a tool designed to help you quickly analyze and debug logs and 
 
 ## Powershell script
 If you end up using the fake data generator please modify the script variables
-
+   ```bash
 # Configuration
 $esURL = "https://<your_elasticsearch_url_here>:<your_port_here>"
 
@@ -64,7 +64,7 @@ $LogsSampleInterval = 60 # How quickly it should generate another batch of logs 
 # Credentials (Basic Auth)
 $username = "<your_username_here>"
 $password = "<your_password_here>"
-
+   ```
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
