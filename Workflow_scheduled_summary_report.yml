@@ -1,0 +1,54 @@
+name: Log Assistant Summary Report Workflow
+enabled: true
+description: Triggers Log Assistant to generate a summary report and stores the output
+tags: [ "test, ai" ]
+
+consts:
+  indexName: "ste-logassistant-output-reports"
+  environment: "test"
+
+triggers:
+  - type: scheduled
+    with:
+      every: 30m
+
+steps:
+  - name: step_generate_summary_report
+    type: ai.agent
+    with:
+      agent_id: "log_assistant"
+      message: "Get me the latest summary report on all logs"
+  - name: check_index
+    type: elasticsearch.indices.exists
+    with:
+      index: "{{consts.indexName}}"
+  - name: check_if_index_exists
+    type: if
+    condition: 'steps.check_index.output : true'
+    steps:
+      - name: index_exists
+        type: console
+        with:
+          message: "index {{ consts.indexName }} already exists, proceeding to update
+            index"
+    else:
+      - name: create_index
+        type: elasticsearch.indices.create
+        with:
+          index: "{{ consts.indexName }}"
+          mappings:
+            properties:
+              timestamp: { type: date, format: E MMM d yyyy HH:mm:ss 'GMT'Z (zzzz)||strict_date_optional_time||epoch_millis }
+              name: { type: text }
+              summary: { type: text }
+  - name: post_report
+    type: elasticsearch.request
+    with:
+      method: "POST"
+      path: "/{{ consts.indexName }}/_doc"
+      body:
+        {
+          "timestamp": "{{ execution.startedAt }}",
+          "name": "Log Assistant Report",
+          "summary": "{{steps.step_generate_summary_report.output}}"
+        }

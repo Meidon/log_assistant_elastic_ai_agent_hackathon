@@ -1,0 +1,51 @@
+name: Get Log report on demand
+enabled: true
+description: This workflow uses a manual trigger with inputs to send off to an
+  AI Agent to generate a quick action report based on the data sent which will
+  then be posted to an index for dashboard availability.
+tags: [ "test, ai" ]
+
+consts:
+  indexName: "ste-logassistant-output-reports"
+
+inputs:
+  - name: prompt
+    type: string
+    required: true
+    default: "Filter for logs with text * from ste-logs-* and give suggestion on how to fix the Critical and Severe logs who repeats more than 20 times"
+    description: "Write your prompt here to get the specific report you want suggested fixes for with focus on repetitive events"
+
+  - name: batchSize
+    type: number
+    required: false
+    default: 500
+    description: "Number of records to process"
+
+triggers:
+  - type: manual
+
+steps:
+  - name: validateInputs
+    type: console
+    with:
+      message: |
+        Starting workflow with:
+        - Prompt: {{ inputs.prompt }}
+        - Batch Size: {{ inputs.batchSize }}
+  - name: step_generate_suggestion
+    type: ai.agent
+    with:
+      agent_id: "log_assistant"
+      message: "{{ inputs.prompt }}"
+
+  - name: post_report
+    type: elasticsearch.request
+    with:
+      method: "POST"
+      path: "/{{ consts.indexName }}/_doc"
+      body:
+        {
+          "timestamp": "{{ execution.startedAt }}",
+          "name": "Log Assistant Suggestion",
+          "summary": "{{steps.step_generate_suggestion.output}}"
+        }
